@@ -1,6 +1,12 @@
 [workspace]
 
-members = ["base", "volks-fw", "pc-communications-hal", "data-center"]
+members = [
+    "base",
+    "volks-fw",
+    "pc-communications-hal",
+    "data-center",
+    "ads1299",
+]
 
 [profile.release]
 codegen-units = 1 # Better optimizations

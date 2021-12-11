@@ -11,6 +11,7 @@ mod app {
     #[cfg(feature = "heap")]
     use {crate::consts::HEAP_SIZE, cortex_m_rt};
     use {
+        ads1299::ads1299_driver::ADS1299,
         data_center::data_center::DataCenter,
         hal::{
             clocks::{Clocks, ExternalOscillator, Internal, LfOscStopped},
@@ -35,6 +36,7 @@ mod app {
     #[shared]
     struct Shared {
         data_center: DataCenter,
+        ads1299: ADS1299,
     }
 
     #[local]
@@ -59,6 +61,7 @@ mod app {
         let mono = Systick::new(systick, 64_000_000);
 
         let data_center = DataCenter::new();
+        let ads1299 = ADS1299::new();
 
         // initialise the USB and serial port peripherals
         static mut CLOCKS: Option<Clocks<ExternalOscillator, Internal, LfOscStopped>> = None;
@@ -88,7 +91,10 @@ mod app {
             });
 
             (
-                Shared { data_center },
+                Shared {
+                    data_center,
+                    ads1299,
+                },
                 Local { pc_interface },
                 init::Monotonics(mono),
             )
