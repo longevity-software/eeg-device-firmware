@@ -11,6 +11,7 @@ mod app {
     #[cfg(feature = "heap")]
     use {crate::consts::HEAP_SIZE, cortex_m_rt};
     use {
+        data_center::data_center::DataCenter,
         hal::{
             clocks::{Clocks, ExternalOscillator, Internal, LfOscStopped},
             usbd::{UsbPeripheral, Usbd},
@@ -32,7 +33,9 @@ mod app {
     type MyMono = Systick<100>; // 100 Hz / 10 ms granularity
 
     #[shared]
-    struct Shared {}
+    struct Shared {
+        data_center: DataCenter,
+    }
 
     #[local]
     struct Local {
@@ -54,6 +57,8 @@ mod app {
         }
         let systick = cx.core.SYST;
         let mono = Systick::new(systick, 64_000_000);
+
+        let data_center = DataCenter::new();
 
         // initialise the USB and serial port peripherals
         static mut CLOCKS: Option<Clocks<ExternalOscillator, Internal, LfOscStopped>> = None;
@@ -82,7 +87,11 @@ mod app {
                 serial_port,
             });
 
-            (Shared {}, Local { pc_interface }, init::Monotonics(mono))
+            (
+                Shared { data_center },
+                Local { pc_interface },
+                init::Monotonics(mono),
+            )
         }
     }
 
