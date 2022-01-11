@@ -22,6 +22,7 @@ pub enum Channel {
     CH8,
 }
 
+#[derive(Copy, Clone)]
 pub enum GainSetting {
     X1,
     X2,
@@ -32,6 +33,7 @@ pub enum GainSetting {
     X24,
 }
 
+#[derive(Copy, Clone)]
 pub enum ChannelMode {
     NormalOperation,
     PoweredDownAndShorted,
@@ -44,6 +46,7 @@ pub enum ChannelMode {
     NegativeElectrodeIsBiasDrive,
 }
 
+#[derive(Copy, Clone)]
 pub enum CurrentSourceSetting {
     Off,
     On6NanoAmps,
@@ -52,11 +55,38 @@ pub enum CurrentSourceSetting {
     On24MicroAmps,
 }
 
-pub struct ADS1299 {}
+#[derive(Copy, Clone)]
+pub struct ADS1299_CHANNEL {
+    gainSetting: GainSetting,
+    mode: ChannelMode,
+}
+
+pub struct ADS1299 {
+    sampleRate: SampleRate,
+    channels: [ADS1299_CHANNEL; 8],
+    currentSourceSetting: CurrentSourceSetting,
+}
 
 impl ADS1299 {
     pub fn new() -> ADS1299 {
-        return ADS1299 {};
+        let default_channel = ADS1299_CHANNEL {
+            gainSetting: crate::ads1299_driver::GainSetting::X1,
+            mode: crate::ads1299_driver::ChannelMode::PoweredDownAndShorted,
+        };
+        return ADS1299 {
+            sampleRate: crate::ads1299_driver::SampleRate::SPS_250,
+            channels: [
+                default_channel,
+                default_channel,
+                default_channel,
+                default_channel,
+                default_channel,
+                default_channel,
+                default_channel,
+                default_channel,
+            ],
+            currentSourceSetting: crate::ads1299_driver::CurrentSourceSetting::Off,
+        };
     }
 
     fn reset() {
@@ -71,17 +101,34 @@ impl ADS1299 {
         // calls the low level driver to stop data capture
     }
 
-    fn set_sample_rate(rate: SampleRate) {
-        match rate {
-            _ => {}
-        }
+    fn set_sample_rate(&mut self, rate: SampleRate) {
+        self.sampleRate = rate;
+
+        // Call low level code
     }
 
-    fn set_channel_settings(channel: Channel, gain: GainSetting, mode: ChannelMode) {
+    fn set_channel_settings(&mut self, channel: Channel, gain: GainSetting, mode: ChannelMode) {
+        let index = match channel {
+            Channel::CH1 => 0,
+            Channel::CH2 => 1,
+            Channel::CH3 => 2,
+            Channel::CH4 => 3,
+            Channel::CH5 => 4,
+            Channel::CH6 => 5,
+            Channel::CH7 => 6,
+            Channel::CH8 => 7,
+        };
+
+        // update our local copies
+        self.channels[index].gainSetting = gain;
+        self.channels[index].mode = mode;
+
         // call low
     }
 
-    fn set_current_sources(current: CurrentSourceSetting) {
+    fn set_current_sources(&mut self, current: CurrentSourceSetting) {
+        self.currentSourceSetting = current;
+
         // call low
     }
 }
