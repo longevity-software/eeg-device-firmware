@@ -19,8 +19,10 @@ impl Ads1299Device {
         Self {}
     }
 
-    pub fn get_supported_channels() -> RegAccessor<id_reg::R, ()> {
-        RegAccessor::new()
+    pub fn get_supported_channels(&self) -> u8 {
+        let mut temp: RegAccessor<id_reg::R, ()> = RegAccessor::new();
+
+        return temp.read().number_of_channels();
     }
 }
 

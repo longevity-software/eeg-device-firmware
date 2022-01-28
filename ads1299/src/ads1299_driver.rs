@@ -1,6 +1,8 @@
 //! ADS1299 high level device driver.
 //!
 
+use crate::ads1299_low_driver;
+
 pub enum SampleRate {
     SPS_250,
     SPS_500,
@@ -63,6 +65,7 @@ pub struct ADS1299_CHANNEL {
 
 pub struct ADS1299 {
     sampleRate: SampleRate,
+    maxChannels: u8,
     channels: [ADS1299_CHANNEL; 8],
     currentSourceSetting: CurrentSourceSetting,
 }
@@ -73,8 +76,12 @@ impl ADS1299 {
             gainSetting: crate::ads1299_driver::GainSetting::X1,
             mode: crate::ads1299_driver::ChannelMode::PoweredDownAndShorted,
         };
+
+        let device = ads1299_low_driver::Ads1299Device::new();
+
         return ADS1299 {
             sampleRate: crate::ads1299_driver::SampleRate::SPS_250,
+            maxChannels: device.get_supported_channels(),
             channels: [
                 default_channel,
                 default_channel,
